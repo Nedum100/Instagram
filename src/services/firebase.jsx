@@ -1,18 +1,27 @@
 // eslint-disable-next-line no-unused-vars
-import { firebaseApp, FieldValue } from "../lib/firebase";
+import { firebaseApp, FieldValue, db } from "../lib/firebase";
+// TODO: See this => https://firebase.google.com/docs/firestore/query-data/get-data#get_a_document
+// TODO: See this => https://firebase.google.com/docs/firestore/query-data/get-data#before_you_begin
+import { doc, query, where, collection, getDocs } from 'firebase/firestore';
 
 export async function doesUsernameExist(username) {
-    const result = await firebaseApp
-      .firestore()
-      .collection('users')
-      .where('username', '==', username)
-      .get();
-  
-    return result.docs.length > 0;
-  }
+  // const result = await db()
+  //   .collection('users')
+  //   .where('username', '==', username)
+  //   .get();
+
+  // TODO: See this => https://firebase.google.com/docs/firestore/query-data/get-data#get_multiple_documents_from_a_collection
+  // FIXME: Permission issues on firebase didn't allow me test this
+  const q = query(collection(db, "users"), where("username", "==", username));
+  const querySnapshot = await getDocs(q);
+  querySnapshot.forEach((doc) => {
+    console.log(doc.id, "=>", doc.data());
+  });
+
+  // return result.docs.length > 0;
+}
 export async function getUserByUsername(username) {
-    const result = await firebaseApp
-      .firestore()
+    const result = await db()
       .collection('users')
       .where('username', '==', username)
       .get();
@@ -24,8 +33,7 @@ export async function getUserByUsername(username) {
   }
 
 export async function getUserByUserId(userId) {
-    const result = await firebaseApp
-    .firestore()
+    const result = await db()
     .collection('users')
     .where('userId', '==', userId)
     .get()
@@ -40,8 +48,7 @@ export async function getUserByUserId(userId) {
 
 // eslint-disable-next-line no-unused-vars
 export async function getSuggestedProfiles(userId, following) {
-   const result = await firebaseApp
-   .firestore()
+   const result = await db()
    .collection('users')
    .limit(10)
    .get()
@@ -54,8 +61,7 @@ export async function getSuggestedProfiles(userId, following) {
 
 export async function updateLoggedInUserFollowing(loggedInUserDocId, profileId,
     isFollowingProfile){
-    return firebaseApp
-    .firestore()
+    return await db()
     .collection('users')
     .doc(loggedInUserDocId)
     .update({
@@ -67,8 +73,7 @@ export async function updateLoggedInUserFollowing(loggedInUserDocId, profileId,
 
 export async function updateFollowedUserFollowers(profileDocId, loggedInUserDocId,
     isFollowingProfile){
-    return firebaseApp
-    .firestore()
+    return await db()
     .collection('users')
     .doc(profileDocId)
     .update({
@@ -79,8 +84,7 @@ export async function updateFollowedUserFollowers(profileDocId, loggedInUserDocI
 }
 
 export async function getPhotos(userId, following) {
-   const result = await firebaseApp
-   .firestore()
+   const result = await db()
    .collection('photos')
    .where('userId', 'in', following)
    .get()
@@ -120,8 +124,7 @@ export async function getUserPhotosByUsername(username) {
 }
 
 export async function isUserFollowingProfile (loggedInUsername, profileUserId) {
-    const result = await firebaseApp
-      .firestore()
+    const result = await db()
       .collection('users')
       .where('username', '==', loggedInUsername)
       .where('following', 'array-contains', profileUserId)
