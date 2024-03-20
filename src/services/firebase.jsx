@@ -1,15 +1,17 @@
 // eslint-disable-next-line no-unused-vars
-import { firebaseApp, FieldValue } from "../lib/firebase";
+import { firebaseApp, FieldValue, db } from "../lib/firebase";
+import { collection, getDocs } from "firebase/firestore";
+// import { doc, query, where, collection, getDocs } from 'firebase/firestore';
 
 export async function doesUsernameExist(username) {
-    const result = await firebaseApp
-      .firestore()
-      .collection('users')
-      .where('username', '==', username)
-      .get();
-  
-    return result.docs.length > 0;
-  }
+  const result = await firebaseApp
+    .firestore()
+    .collection('users')
+    .where('username', '==', username)
+    .get();
+
+  return result.docs.length > 0;
+}
 export async function getUserByUsername(username) {
     const result = await firebaseApp
       .firestore()
@@ -23,19 +25,16 @@ export async function getUserByUsername(username) {
     }))
   }
 
+// eslint-disable-next-line no-unused-vars
 export async function getUserByUserId(userId) {
-    const result = await firebaseApp
-    .firestore()
-    .collection('users')
-    .where('userId', '==', userId)
-    .get()
-    
-    const user = result.docs.map((item) => ({
-        ...item.data(),
-        docId: item.id 
-    }))
+  const result = await getDocs(collection(db, "users"));
 
-    return user
+  const user = result.docs.map((item) => ({
+    ...item.data(),
+    docId: item.id,
+  }));
+
+  return user;
 }
 
 // eslint-disable-next-line no-unused-vars

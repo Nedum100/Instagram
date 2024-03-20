@@ -13,7 +13,7 @@ const firebaseConfig  = {
 
 const firebaseApp = initializeApp(firebaseConfig );
 const auth = getAuth(firebaseApp);
-const db = getFirestore(firebaseApp);
+const db = getFirestore();
 const  FieldValue  = serverTimestamp(); 
 
 // eslint-disable-next-line react-refresh/only-export-components
