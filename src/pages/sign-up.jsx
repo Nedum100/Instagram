@@ -6,6 +6,7 @@ import * as ROUTES from '../constants/routes'
 import { doesUsernameExist } from "../services/firebase";
 import { firebaseApp } from "../lib/firebase";
 
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
 
 export default function Signup() {
     const navigate = useNavigate(); 
@@ -28,17 +29,21 @@ export default function Signup() {
 
     if (!usernameExists) {
       try {
-        const createdUserResult = await firebase
-          .auth()
-          .createUserWithEmailAndPassword(emailAddress, password);
+        // NOTE: The API for this has changed. see here => https://firebase.google.com/docs/auth/web/password-auth#sign_in_a_user_with_an_email_address_and_password
+        const createdUserResult = await createUserWithEmailAndPassword(
+          getAuth(),
+          emailAddress,
+          password
+        );
 
         // Update user profile with the username
-        await createdUserResult.user.updateProfile({
+        // Also, NOTE: The API has changed too. 😂 https://firebase.google.com/docs/auth/web/manage-users#update_a_users_profile
+        await updateProfile(getAuth().currentUser, {
           displayName: username,
         });
 
         // firebase user collection (create a document)
-        await firebaseApp.firestore().collection('users').add({
+        await firebaseApp.firestore().collection("users").add({
           userId: createdUserResult.user.uid,
           username: username.toLowerCase(),
           fullname,
@@ -47,8 +52,8 @@ export default function Signup() {
           dateCreated: Date.now(),
         });
 
-          navigate.push(ROUTES.DASHBOARD);
-        } catch (error) {
+        navigate.push(ROUTES.DASHBOARD);
+      } catch (error) {
           setFullname('');
           setEmailAddress('');
           setPassword('');
