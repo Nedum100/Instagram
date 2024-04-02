@@ -4,6 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { FirebaseContext } from "../context/firebase";
 import * as ROUTES from '../constants/routes';
 
+import  { getAuth, signInWithEmailAndPassword } from "firebase/auth"
+
 export default function Login() {
   const navigate = useNavigate(); 
   const { firebase } = useContext(FirebaseContext);
@@ -18,7 +20,7 @@ export default function Login() {
     event.preventDefault();
 
     try {
-      await firebase.auth().signInWithEmailAndPassword(emailAddress, password);
+      await signInWithEmailAndPassword(getAuth(), emailAddress, password);
       navigate(ROUTES.DASHBOARD);
     } catch (error) {
       setEmailAddress('');
